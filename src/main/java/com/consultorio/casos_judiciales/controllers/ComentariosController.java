@@ -1,7 +1,7 @@
 package com.consultorio.casos_judiciales.controllers;
 
 import com.consultorio.casos_judiciales.dtos.request.ComentariosRequest;
-import com.consultorio.casos_judiciales.models.Comentarios;
+import com.consultorio.casos_judiciales.models.Comentario;
 import com.consultorio.casos_judiciales.services.ComentarioService;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class ComentariosController {
     private ComentarioService comentarioService;
     @PreAuthorize("permitAll")
     @PostMapping("/{id}")
-    public ResponseEntity<Comentarios> generateComentario(
+    public ResponseEntity<Comentario> generateComentario(
             @RequestBody ComentariosRequest request,
             @RequestHeader("Authorization") String bearerToken,
             @PathVariable("id")int id

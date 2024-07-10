@@ -1,7 +1,7 @@
 package com.consultorio.casos_judiciales.config;
 
 
-import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.models.Usuario;
 import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
 import com.consultorio.casos_judiciales.services.JwtService;
 import com.consultorio.casos_judiciales.utils.Status;
@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String email = jwtService.getEmailFromToken(jwt);
 
-        Optional<Usuarios> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
+        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
 
         if ( users.isPresent() && jwtService.isTokenValid( jwt ) ){
             UsernamePasswordAuthenticationToken auth =

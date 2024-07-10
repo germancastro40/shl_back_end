@@ -2,7 +2,6 @@ package com.consultorio.casos_judiciales.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,12 +10,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-@Entity
+@Entity(name = "comentarios")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comentarios {
+public class Comentario {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -26,12 +25,12 @@ public class Comentarios {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_uuid", nullable = false)
     @JsonIgnore
-    private Usuarios usuario;
+    private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caso_id", nullable = false)
     @JsonIgnore
-    private Casos caso;
+    private Caso caso;
 
     @DateTimeFormat(pattern = "yyyy/MM/dd")
     @Temporal(TemporalType.DATE)

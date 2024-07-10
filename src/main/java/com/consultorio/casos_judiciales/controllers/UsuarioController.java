@@ -1,6 +1,6 @@
 package com.consultorio.casos_judiciales.controllers;
 
-import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.models.Usuario;
 import com.consultorio.casos_judiciales.services.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -22,16 +22,30 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    //@PreAuthorize("hasAuthority('CREATE_PERSONA')")
-    @PreAuthorize("permitAll")
-    @PostMapping()
-    public ResponseEntity<Usuarios>createClient(
-            @Valid @RequestBody Usuarios usuarios, BindingResult result
+    @PreAuthorize("hasAuthority('CREATE_ADMIN')")
+    @PostMapping("admin")
+    public ResponseEntity<Usuario>createAdmin(
+            @Valid @RequestBody Usuario usuario, BindingResult result
     ) throws BadRequestException {
         HttpStatus status = HttpStatus.OK;
         if (result.hasErrors()){
             status = HttpStatus.BAD_REQUEST;
         }
-        return new ResponseEntity<>(usuarioService.createUserAsAdmin(usuarios), status);
+        return new ResponseEntity<>(usuarioService.createUserAsAdmin(usuario), status);
     }
+
+    @PreAuthorize("hasAuthority('CREATE_ABOGADO')")
+    @PostMapping("abogado")
+    public ResponseEntity<Usuario>createAbogado(@Valid @RequestBody Usuario usuario) throws BadRequestException {
+        return new ResponseEntity<>(usuarioService.createUserAsLawyer(usuario), HttpStatus.CREATED);
+
+    }
+
+    @PreAuthorize("hasAuthority('CREATE_PERSONA')")
+    @PostMapping("cliente")
+    public ResponseEntity<Usuario>createClient(@Valid @RequestBody Usuario usuario) throws BadRequestException {
+        return new ResponseEntity<>(usuarioService.createUserAsClient(usuario), HttpStatus.CREATED);
+
+    }
+
 }

@@ -14,15 +14,14 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
+@Entity(name = "casos")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Casos {
+public class Caso {
         @Id
         @GeneratedValue(strategy = GenerationType.AUTO)
         private int id;
@@ -46,15 +45,15 @@ public class Casos {
         @ManyToOne
         @JoinColumn(name = "cliente_id", referencedColumnName = "uuid")
         //@JsonIgnore
-        private Usuarios cliente;
+        private Usuario cliente;
 
         @ManyToOne
         @JoinColumn(name = "abogado_id", referencedColumnName = "uuid")
         //@JsonIgnore
-        private Usuarios abogado;
+        private Usuario abogado;
 
         @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<Comentarios> comentarios;
+        private List<Comentario> comentarios;
 
         @Enumerated(EnumType.STRING)
         @JsonIgnore

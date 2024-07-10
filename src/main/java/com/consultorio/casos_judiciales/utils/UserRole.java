@@ -17,7 +17,8 @@ public enum UserRole {
                    Permission.UPDATE_CASE,        Permission.READ_CASE,
                    Permission.CREATE_PERSONA,     Permission.READ_PERSONA,
                    Permission.DELETE_CASE,        Permission.UPDATE_PERSONA,
-                   Permission.DELETE_PERSONA
+                   Permission.DELETE_PERSONA,     Permission.CREATE_ADMIN,
+                   Permission.CREATE_ABOGADO
     ));
 
     private List<Permission>permissions;

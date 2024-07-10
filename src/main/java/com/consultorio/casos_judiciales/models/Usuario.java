@@ -7,7 +7,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,33 +26,43 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-@Entity
+@Entity(name = "usuarios")
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Usuarios implements UserDetails {
+@Builder
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String uuid;
 
-    @Email
+    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
+            message = "The email must be a valid email"
+    )
     @Column( unique = true )
     private String email;
 
     @Column(nullable = false)
+    @NotNull(message = "the name can't be null")
     private String name;
 
     @Column(nullable = false)
+    @NotNull(message = "the lastname can't be null")
     private String lastname;
 
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @NotNull(message = "the lastname can't be null")
+    @Min(value = 6, message = "The password min length requires is 6 characters")
     private String password;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UserRole role;
 
     @Column(nullable = false)
+    @NotNull(message = "the phoneContact can't be null")
+    @Pattern(regexp = "^[3][0-9]{9}$", message = "The phoneContact isn't valid")
     private BigInteger phoneContact;
 
     @JsonIgnore
@@ -57,15 +71,15 @@ public class Usuarios implements UserDetails {
 
     @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    private Set<Casos> casosAsCliente;
+    private Set<Caso> casoAsCliente;
 
     @JsonIgnore
     @OneToMany(mappedBy = "abogado", cascade = CascadeType.ALL)
-    private Set<Casos> casosAsAbogado;
+    private Set<Caso> casoAsAbogado;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Comentarios> comentarios;
+    private Set<Comentario> comentarios;
 
     @Override
     @JsonIgnore

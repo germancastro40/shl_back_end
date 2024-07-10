@@ -1,6 +1,6 @@
 package com.consultorio.casos_judiciales.services;
 
-import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.models.Usuario;
 import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
 import com.consultorio.casos_judiciales.utils.UserRole;
 import com.consultorio.casos_judiciales.utils.Status;
@@ -22,26 +22,35 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private Usuarios saveUSer(Usuarios usuarios, UserRole role) throws BadRequestException {
-        String email = usuarios.getEmail();
+    private Usuario saveUSer(Usuario usuario, UserRole role) throws BadRequestException {
+        String email = usuario.getEmail();
+
         if (isEmailInUse(email)){
             throw new BadRequestException("The email address: '"+email.toUpperCase()+"' is already in use");
         }
-        usuarios.setRole(role);
-        usuarios.setStatus(Status.ACTIVE);
-        usuarios.setPassword(passwordEncoder.encode(usuarios.getPassword()));
-        return usuarioRepository.save(usuarios);
-    }
-    public Usuarios createUserAsClient(Usuarios usuarios) throws BadRequestException {
-        return saveUSer(usuarios, UserRole.CLIENTE);
+
+        Usuario u = Usuario.builder()
+                .email(usuario.getEmail().toLowerCase())
+                .name(usuario.getName().toLowerCase())
+                .lastname(usuario.getLastname().toLowerCase())
+                .role(role)
+                .status(Status.ACTIVE)
+                .password(passwordEncoder.encode(usuario.getPassword()))
+                .build();
+
+        return usuarioRepository.save(u);
     }
 
-    public Usuarios createUserAsLawyer(Usuarios usuarios) throws BadRequestException {
-        return saveUSer(usuarios, UserRole.ABOGADO);
+    public Usuario createUserAsClient(Usuario usuario) throws BadRequestException {
+        return saveUSer(usuario, UserRole.CLIENTE);
+    }
+
+    public Usuario createUserAsLawyer(Usuario usuario) throws BadRequestException {
+        return saveUSer(usuario, UserRole.ABOGADO);
 
     }
-    public Usuarios createUserAsAdmin(Usuarios usuarios) throws BadRequestException {
-        return saveUSer(usuarios, UserRole.ADMIN);
+    public Usuario createUserAsAdmin(Usuario usuario) throws BadRequestException {
+        return saveUSer(usuario, UserRole.ADMIN);
     }
 
     private boolean isEmailInUse(String email){
@@ -66,7 +75,7 @@ public class UsuarioService {
     public boolean isUserAClient(String id){
         return getUserRole(id).equals("CLIENTE");
     }
-    public Optional<Usuarios>findUSerByIDActive(String id){
+    public Optional<Usuario>findUSerByIDActive(String id){
         return usuarioRepository.findByuuidAndStatus(id, Status.ACTIVE);
     }
 }

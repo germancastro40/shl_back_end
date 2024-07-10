@@ -2,7 +2,7 @@ package com.consultorio.casos_judiciales.services;
 
 import com.consultorio.casos_judiciales.dtos.request.SignInRequest;
 import com.consultorio.casos_judiciales.dtos.response.SignInResponse;
-import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.models.Usuario;
 import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
 import com.consultorio.casos_judiciales.utils.Status;
 import lombok.AllArgsConstructor;
@@ -28,12 +28,12 @@ public class AuthService {
     private UsuarioService usuarioService;
 
     public SignInResponse signIn(SignInRequest request){
-        String e = request.getEmail();
-        String p = request.getPassword();
+        String e = request.getEmail().toLowerCase();
+        String p = request.getPassword().toLowerCase();
 
         authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(e, p));
 
-        Optional<Usuarios> users = usuarioRepository.findByEmailAndStatus(e, Status.ACTIVE);
+        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(e, Status.ACTIVE);
 
         if (users.isEmpty()){
             throw  new UsernameNotFoundException("User not found");
@@ -42,7 +42,7 @@ public class AuthService {
 
         return SignInResponse.builder()
                 .token(token)
-                .usuarios(users.get())
+                .usuario(users.get())
                 .build();
     }
 

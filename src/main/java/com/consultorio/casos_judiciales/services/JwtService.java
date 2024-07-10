@@ -1,6 +1,6 @@
 package com.consultorio.casos_judiciales.services;
 
-import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.models.Usuario;
 import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
 import com.consultorio.casos_judiciales.utils.Status;
 import io.jsonwebtoken.Claims;
@@ -30,20 +30,20 @@ public class JwtService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public String generateToken(Usuarios usuarios){
+    public String generateToken(Usuario usuario){
         return Jwts
                 .builder()
-                .setClaims(generateExtraClaims(usuarios))
-                .setSubject(usuarios.getUuid())
+                .setClaims(generateExtraClaims(usuario))
+                .setSubject(usuario.getUuid())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 2 * 60 * 60 * 1000))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    private Map<String, Object>generateExtraClaims(Usuarios usuarios){
+    private Map<String, Object>generateExtraClaims(Usuario usuario){
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put( "email", usuarios.getEmail() );
-        extraClaims.put( "role", usuarios.getRole() );
+        extraClaims.put( "email", usuario.getEmail() );
+        extraClaims.put( "role", usuario.getRole() );
         return extraClaims;
     }
 
@@ -93,7 +93,7 @@ public class JwtService {
 
     public boolean isTokenValid(String token){
         String email = getEmailFromToken(token);
-        Optional<Usuarios> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
+        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
 
         return (users.isPresent() && email.equals(users.get().getEmail()) && !isTokenExpired(token));
     }

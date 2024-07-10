@@ -1,7 +1,7 @@
 package com.consultorio.casos_judiciales.controllers;
 
 import com.consultorio.casos_judiciales.dtos.request.CasosRequest;
-import com.consultorio.casos_judiciales.models.Casos;
+import com.consultorio.casos_judiciales.models.Caso;
 import com.consultorio.casos_judiciales.services.CasosService;
 import jakarta.validation.Valid;
 import org.apache.coyote.BadRequestException;
@@ -21,7 +21,7 @@ public class CasosController {
 
     @PreAuthorize("hasAuthority('CREATE_CASE')")
     @PostMapping
-    public ResponseEntity<Casos> createCase(
+    public ResponseEntity<Caso> createCase(
             @RequestHeader("Authorization")String bearerToken,
             @Valid @RequestBody CasosRequest request
             ) throws BadRequestException {
@@ -31,7 +31,7 @@ public class CasosController {
 
     @PreAuthorize("permitAll")
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Casos>> getCaseById(@PathVariable("id") int id){
+    public ResponseEntity<Optional<Caso>> getCaseById(@PathVariable("id") int id){
         return ResponseEntity.ok(casosService.findCasosById(id));
     }
 }
