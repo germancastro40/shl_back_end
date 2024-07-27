@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -26,44 +25,40 @@ import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
-@Entity(name = "usuarios")
+@Entity
 @NoArgsConstructor
-@JsonIgnoreProperties(ignoreUnknown = true)
 @Builder
-public class Usuario implements UserDetails {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Usuarios implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String uuid;
 
-    @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}$",
-            message = "The email must be a valid email"
-    )
+    @Email
     @Column( unique = true )
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
 
     @Column(nullable = false)
-    @NotNull(message = "the name can't be null")
     private String name;
 
     @Column(nullable = false)
-    @NotNull(message = "the lastname can't be null")
     private String lastname;
 
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @NotNull(message = "the lastname can't be null")
-    @Min(value = 6, message = "The password min length requires is 6 characters")
     private String password;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private UserRole role;
 
-    @Column(nullable = false)
-    @NotNull(message = "the phoneContact can't be null")
-    @Pattern(regexp = "^[3][0-9]{9}$", message = "The phoneContact isn't valid")
-    private BigInteger phoneContact;
+
+
+    @Column( nullable = false )
+    @Pattern(regexp = "^[3][0-9]{9}$", message = "The phone_contact isn't valid")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String phone_contact;
 
     @JsonIgnore
     @Enumerated(EnumType.STRING)
@@ -71,15 +66,15 @@ public class Usuario implements UserDetails {
 
     @JsonIgnore
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
-    private Set<Caso> casoAsCliente;
+    private Set<Casos> casosAsCliente;
 
     @JsonIgnore
     @OneToMany(mappedBy = "abogado", cascade = CascadeType.ALL)
-    private Set<Caso> casoAsAbogado;
+    private Set<Casos> casosAsAbogado;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<Comentario> comentarios;
+    private Set<Comentarios> comentarios;
 
     @Override
     @JsonIgnore
@@ -120,4 +115,3 @@ public class Usuario implements UserDetails {
     }
 
 }
-

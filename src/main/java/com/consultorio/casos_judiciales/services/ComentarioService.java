@@ -1,10 +1,11 @@
 package com.consultorio.casos_judiciales.services;
 
 import com.consultorio.casos_judiciales.dtos.request.ComentariosRequest;
-import com.consultorio.casos_judiciales.models.Caso;
-import com.consultorio.casos_judiciales.models.Comentario;
-import com.consultorio.casos_judiciales.models.Usuario;
+import com.consultorio.casos_judiciales.models.Casos;
+import com.consultorio.casos_judiciales.models.Comentarios;
+import com.consultorio.casos_judiciales.models.Usuarios;
 import com.consultorio.casos_judiciales.repositories.ComentariosRepository;
+import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.Date;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class ComentarioService {
 
     @Autowired
@@ -27,27 +29,25 @@ public class ComentarioService {
     @Autowired
     private CasosService casosService;
 
-    public Comentario generateComentario(ComentariosRequest request, String token, int id) throws BadRequestException {
+    public Comentarios generateComentario(ComentariosRequest request, String token, String caseId) throws BadRequestException {
+        String userId = jwtService.getIDFromToken(token);
+        Usuarios user = usuarioService.findUSerById(userId)
+                .orElseThrow(() -> new BadRequestException("User with id: '" + userId + "' not found"));
 
-        String abogado_id = jwtService.getIDFromToken(token);
-        Optional<Usuario> usuarios = usuarioService.findUSerByIDActive(abogado_id);
+        Casos caseEntity = casosService.findCasosById(caseId)
+                .orElseThrow(() -> new BadRequestException("Case with id: '" + caseId + "' not found"));
 
-        Optional<Caso>casos = casosService.findCasosById(id);
-
-        if (usuarios.isEmpty()){
-            throw new BadRequestException("User with id: '" +abogado_id+"' not found");
+        if (!usuarioService.isUserALawyerOrAdmin(userId)) {
+            throw new BadRequestException("User with id: '" + userId + "' does not have the necessary permissions");
         }
 
-        if (casos.isEmpty()){
-            throw new BadRequestException("Case with id: '" +casos+"' not found");
-        }
-
-        Comentario comentario = Comentario.builder()
+        Comentarios comentario = Comentarios.builder()
                 .comentario(request.getComentario().toLowerCase())
-                .caso(casos.get())
+                .caso(caseEntity)
                 .createdAt(new Date())
-                .usuario(usuarios.get())
+                .usuario(user)
                 .build();
         return comentariosRepository.save(comentario);
     }
+
 }

@@ -1,8 +1,7 @@
 package com.consultorio.casos_judiciales.config;
 
-
-import com.consultorio.casos_judiciales.models.Usuario;
-import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
+import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
 import com.consultorio.casos_judiciales.services.JwtService;
 import com.consultorio.casos_judiciales.utils.Status;
 import jakarta.servlet.FilterChain;
@@ -10,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,8 +22,9 @@ import java.util.Optional;
 @Component
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuariosRepository usuariosRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -33,9 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        //filterChain.doFilter(request, response);
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")){
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -43,27 +42,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(7);
 
         if (jwtService.isTokenExpired(jwt)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Token was expired");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token was expired");
             return;
         }
 
-        if (!jwtService.isTokenValid(jwt)){
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Token not valid");
+        if (!jwtService.isTokenValid(jwt)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token not valid");
             return;
         }
 
         String email = jwtService.getEmailFromToken(jwt);
 
-        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
+        Optional<Usuarios> users = usuariosRepository.findByEmailAndStatus(email, Status.ACTIVE);
 
-        if ( users.isPresent() && jwtService.isTokenValid( jwt ) ){
+        if (users.isPresent() && jwtService.isTokenValid(jwt)) {
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken( email, null, users.get().getAuthorities() );
+                    new UsernamePasswordAuthenticationToken(email, null, users.get().getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(auth);
-            filterChain.doFilter(request,response);
         }
 
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
-
 }

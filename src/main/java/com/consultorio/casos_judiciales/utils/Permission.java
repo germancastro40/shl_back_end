@@ -3,6 +3,7 @@ package com.consultorio.casos_judiciales.utils;
 public enum Permission {
 CREATE_CASE,
 READ_CASE,
+READ_ALL_CASES,
 UPDATE_CASE,
 DELETE_CASE,
 CREATE_PERSONA,

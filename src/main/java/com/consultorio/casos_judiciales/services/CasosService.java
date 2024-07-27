@@ -1,16 +1,21 @@
 package com.consultorio.casos_judiciales.services;
 
 import com.consultorio.casos_judiciales.dtos.request.CasosRequest;
-import com.consultorio.casos_judiciales.models.Caso;
-import com.consultorio.casos_judiciales.models.Usuario;
+import com.consultorio.casos_judiciales.models.Casos;
+import com.consultorio.casos_judiciales.models.Comentarios;
+import com.consultorio.casos_judiciales.models.Usuarios;
 import com.consultorio.casos_judiciales.repositories.CasosRepository;
 import com.consultorio.casos_judiciales.utils.EstadoCasos;
 import com.consultorio.casos_judiciales.utils.Status;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CasosService {
@@ -23,29 +28,48 @@ public class CasosService {
     @Autowired
     private UsuarioService usuarioService;
 
-    public Caso createCase(CasosRequest request, String token) throws BadRequestException {
-        String abogado_id = jwtService.getIDFromToken(token);
-        Optional<Usuario> client = usuarioService.findUSerByIDActive(request.getCliente_id());
-        Optional<Usuario> abogado = usuarioService.findUSerByIDActive(abogado_id);
+    public List<Casos>getAllCases(){
+        List<Casos> allCases = casosRepository.findAll();
+        allCases.removeIf( c -> c.getStatus() != Status.ACTIVE );
+        return allCases;
+    }
 
+    public Casos createCase(CasosRequest request, String token) throws BadRequestException {
+        String abogadoId = jwtService.getIDFromToken(token);
+        Usuarios abogado = usuarioService.findUSerById(abogadoId)
+                .orElseThrow(() -> new BadRequestException("Lawyer with id: '" + abogadoId + "' not found"));
 
-        if (!usuarioService.isUserALawyer(abogado_id) ) {
-            throw new BadRequestException("The user isn't a lawyer");
-        } else if (!usuarioService.isUserAClient(request.getCliente_id())) {
+        Usuarios client = usuarioService.findUSerById(request.getCliente_id())
+                .orElseThrow(() -> new BadRequestException("Client with id: '" + request.getCliente_id() + "' not found"));
+
+        if (!usuarioService.isUserALawyerOrAdmin(abogadoId)) {
+            throw new BadRequestException("The user isn't a lawyer or an admin");
+        }
+
+        if (!usuarioService.isUserAClient(request.getCliente_id())) {
             throw new BadRequestException("The user isn't a client");
         }
 
-        Caso caso = Caso.builder()
+        Casos casos = Casos.builder()
                 .nombreCaso(request.getNombreCaso().toLowerCase())
-                .abogado(abogado.get())
-                .cliente(client.get())
+                .abogado(abogado)
+                .cliente(client)
                 .estado(EstadoCasos.ABIERTO)
                 .descripcion(request.getDescripcion().toLowerCase())
-                .estado(EstadoCasos.ABIERTO)
+                .status(Status.ACTIVE)
                 .build();
-        return casosRepository.save(caso);
+
+        return casosRepository.save(casos);
     }
-    public Optional<Caso> findCasosById(int id){
-        return casosRepository.findCasoByIdAndStatus(id, Status.ACTIVE);
+
+    public Optional<Casos> findCasosById(String id){
+        Casos casos = casosRepository.findCasoByIdAndStatus(id, Status.ACTIVE).orElseThrow();
+        List<Comentarios> comentariosOrdenados = casos.getComentarios().stream()
+                .sorted(Comparator.comparing(Comentarios::getCreatedAt).reversed())
+                .collect(Collectors.toList());
+
+
+        casos.setComentarios(comentariosOrdenados);
+        return Optional.of(casos);
     }
 }

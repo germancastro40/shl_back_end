@@ -2,8 +2,9 @@ package com.consultorio.casos_judiciales.services;
 
 import com.consultorio.casos_judiciales.dtos.request.SignInRequest;
 import com.consultorio.casos_judiciales.dtos.response.SignInResponse;
-import com.consultorio.casos_judiciales.models.Usuario;
-import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
+import com.consultorio.casos_judiciales.dtos.response.ValidateTokenResponse;
+import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
 import com.consultorio.casos_judiciales.utils.Status;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class AuthService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuariosRepository usuariosRepository;
     @Autowired
     private UsuarioService usuarioService;
 
@@ -33,7 +34,7 @@ public class AuthService {
 
         authenticationManager.authenticate( new UsernamePasswordAuthenticationToken(e, p));
 
-        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(e, Status.ACTIVE);
+        Optional<Usuarios> users = usuariosRepository.findByEmailAndStatus(e, Status.ACTIVE);
 
         if (users.isEmpty()){
             throw  new UsernameNotFoundException("User not found");
@@ -44,6 +45,18 @@ public class AuthService {
                 .token(token)
                 .usuario(users.get())
                 .build();
+    }
+    public  boolean isValidToken(String token){
+        return jwtService.isTokenValid(token);
+    }
+
+    public ValidateTokenResponse validateToken(String token) {
+
+        String id = jwtService.getIDFromToken(token);
+        Usuarios usuario = usuarioService.findUSerById(id).orElse(null);
+
+        String nuevoToken = jwtService.generateToken(usuario);
+        return new ValidateTokenResponse(usuario, nuevoToken);
     }
 
 }

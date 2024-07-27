@@ -1,6 +1,6 @@
 package com.consultorio.casos_judiciales.config;
 
-import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
+import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
 import com.consultorio.casos_judiciales.utils.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AppConfiguration {
     @Autowired
-    UsuarioRepository usuarioRepository;
+    UsuariosRepository usuariosRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -42,9 +42,7 @@ public class AppConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        //return new CustomUserDetailsService(clienteRepository, abogadoRepository);
-
-        return email -> usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE)
+        return email -> usuariosRepository.findByEmailAndStatus(email, Status.ACTIVE)
                 .orElseThrow( () -> new UsernameNotFoundException("User not found"));
     }
 }

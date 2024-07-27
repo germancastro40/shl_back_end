@@ -1,7 +1,10 @@
 package com.consultorio.casos_judiciales.models;
 
+import com.consultorio.casos_judiciales.models.Comentarios;
+import com.consultorio.casos_judiciales.models.Usuarios;
 import com.consultorio.casos_judiciales.utils.EstadoCasos;
 import com.consultorio.casos_judiciales.utils.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
@@ -19,12 +22,12 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "casos")
+@Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Caso {
+public class Casos {
         @Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private int id;
+        @GeneratedValue(strategy = GenerationType.UUID)
+        private String id;
 
         @NotNull
         @Column(nullable = false)
@@ -35,48 +38,41 @@ public class Caso {
         @NotNull
         @Enumerated(EnumType.STRING)
         private EstadoCasos estado;
-        /**
-         * private List<Comentarios> etapa;
-         * TODO: agregar este punto
-         * los comentarios deben tener informacion como por ejemplo;
-         * quien comenta a que hora y fecha comento y ordenarlos de el primero a el ultimo
-         *
-         */
+
         @ManyToOne
         @JoinColumn(name = "cliente_id", referencedColumnName = "uuid")
-        //@JsonIgnore
-        private Usuario cliente;
+        private Usuarios cliente;
 
         @ManyToOne
         @JoinColumn(name = "abogado_id", referencedColumnName = "uuid")
-        //@JsonIgnore
-        private Usuario abogado;
+        private Usuarios abogado;
 
-        @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<Comentario> comentarios;
+        @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL)
+        private List<Comentarios> comentarios;
 
         @Enumerated(EnumType.STRING)
         @JsonIgnore
         private Status status;
 
-        @DateTimeFormat(pattern = "yyyy/MM/dd")
-        @Temporal(TemporalType.DATE)
+        @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd HH:mm:ss")
+        @Temporal(TemporalType.TIMESTAMP)
         private Date createdAt;
 
-        @DateTimeFormat(pattern = "yyyy/MM/dd")
-        @Temporal(TemporalType.DATE)
+        @DateTimeFormat(pattern = "yyyy/MM/dd HH:mm:ss")
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy/MM/dd HH:mm:ss")
+        @Temporal(TemporalType.TIMESTAMP)
         private Date updatedAt;
 
         @PrePersist
         private void onCreate(){
-            Date now = new Date();
-            createdAt = now;
-            updatedAt = now;
+                Date now = new Date();
+                createdAt = now;
+                updatedAt = now;
         }
 
         @PostUpdate
         private void onUpdate(){
-            updatedAt = new Date();
+                updatedAt = new Date();
         }
 }
-

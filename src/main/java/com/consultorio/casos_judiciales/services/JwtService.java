@@ -1,12 +1,9 @@
 package com.consultorio.casos_judiciales.services;
 
-import com.consultorio.casos_judiciales.models.Usuario;
-import com.consultorio.casos_judiciales.repositories.UsuarioRepository;
+import com.consultorio.casos_judiciales.models.Usuarios;
+import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
 import com.consultorio.casos_judiciales.utils.Status;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
@@ -28,9 +25,9 @@ public class JwtService {
     private String secretKey;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UsuarioService usuarioService;
 
-    public String generateToken(Usuario usuario){
+    public String generateToken(Usuarios usuario){
         return Jwts
                 .builder()
                 .setClaims(generateExtraClaims(usuario))
@@ -40,7 +37,7 @@ public class JwtService {
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-    private Map<String, Object>generateExtraClaims(Usuario usuario){
+    private Map<String, Object>generateExtraClaims(Usuarios usuario){
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put( "email", usuario.getEmail() );
         extraClaims.put( "role", usuario.getRole() );
@@ -91,10 +88,27 @@ public class JwtService {
         }
     }
 
-    public boolean isTokenValid(String token){
-        String email = getEmailFromToken(token);
-        Optional<Usuario> users = usuarioRepository.findByEmailAndStatus(email, Status.ACTIVE);
+    private boolean validateToken(String token){
+        try{
+            String email = getEmailFromToken(token);
+            Optional<Usuarios> users = usuarioService.findUSerById(email);
+            return users.isPresent() || !isTokenExpired(token);
+        }catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException | SignatureException e){
+            return false;
+        }
+    }
 
-        return (users.isPresent() && email.equals(users.get().getEmail()) && !isTokenExpired(token));
+    public boolean isTokenValid(String token) {
+        try{
+            String email = getEmailFromToken(token);
+            Optional<Usuarios> users = usuarioService.findUSerById(email);
+            return users.isPresent() || !isTokenExpired(token);
+        }catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e){
+            return false;
+        }
+        //String email = getEmailFromToken(token);
+        //Optional<Usuarios> users = usuarioService.findUSerById(email);
+
+        //return users.isPresent() || !isTokenExpired(token);
     }
 }

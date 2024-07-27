@@ -2,10 +2,9 @@ package com.consultorio.casos_judiciales.controllers;
 
 import com.consultorio.casos_judiciales.dtos.request.SignInRequest;
 import com.consultorio.casos_judiciales.dtos.response.SignInResponse;
+import com.consultorio.casos_judiciales.dtos.response.ValidateTokenResponse;
 import com.consultorio.casos_judiciales.services.AuthService;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,14 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("auth")
-@AllArgsConstructor
 public class AuthController {
-
     @Autowired
     private AuthService authService;
 
@@ -38,4 +32,26 @@ public class AuthController {
 
         return new ResponseEntity<>(authService.signIn(request), status);
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(value = "/validate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String token) {
+
+        String actualToken = token.substring(7);
+
+        ValidateTokenResponse response = authService.validateToken(actualToken);
+
+        if (response.getUsuario() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("permitAll")
+    @GetMapping(value = "/hola")
+    public ResponseEntity<?> resp(@RequestBody String msg) {
+        return ResponseEntity.ok(msg);
+    }
+
 }
