@@ -1,9 +1,7 @@
 package com.consultorio.casos_judiciales.models;
 
-import com.consultorio.casos_judiciales.models.Comentarios;
-import com.consultorio.casos_judiciales.models.Usuarios;
-import com.consultorio.casos_judiciales.utils.EstadoCasos;
-import com.consultorio.casos_judiciales.utils.Status;
+import com.consultorio.casos_judiciales.enums.EstadoCasos;
+import com.consultorio.casos_judiciales.enums.Status;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

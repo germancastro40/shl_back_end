@@ -1,13 +1,12 @@
 package com.consultorio.casos_judiciales.models;
 
-import com.consultorio.casos_judiciales.utils.UserRole;
-import com.consultorio.casos_judiciales.utils.Status;
+import com.consultorio.casos_judiciales.enums.Status;
+import com.consultorio.casos_judiciales.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +16,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,7 +36,6 @@ public class Usuarios implements UserDetails {
 
     @Email
     @Column( unique = true )
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String email;
 
     @Column(nullable = false)
@@ -46,18 +45,15 @@ public class Usuarios implements UserDetails {
     private String lastname;
 
     @Column(nullable = false)
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonIgnore
     private String password;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-
-
     @Column( nullable = false )
     @Pattern(regexp = "^[3][0-9]{9}$", message = "The phone_contact isn't valid")
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String phone_contact;
 
     @JsonIgnore

@@ -1,7 +1,7 @@
 package com.consultorio.casos_judiciales.repositories;
 
 import com.consultorio.casos_judiciales.models.Casos;
-import com.consultorio.casos_judiciales.utils.Status;
+import com.consultorio.casos_judiciales.enums.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

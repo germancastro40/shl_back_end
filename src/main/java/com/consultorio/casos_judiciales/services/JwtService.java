@@ -1,8 +1,6 @@
 package com.consultorio.casos_judiciales.services;
 
 import com.consultorio.casos_judiciales.models.Usuarios;
-import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
-import com.consultorio.casos_judiciales.utils.Status;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -106,9 +104,7 @@ public class JwtService {
         }catch (MalformedJwtException | UnsupportedJwtException | IllegalArgumentException e){
             return false;
         }
-        //String email = getEmailFromToken(token);
-        //Optional<Usuarios> users = usuarioService.findUSerById(email);
 
-        //return users.isPresent() || !isTokenExpired(token);
     }
+
 }

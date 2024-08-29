@@ -5,11 +5,10 @@ import com.consultorio.casos_judiciales.models.Casos;
 import com.consultorio.casos_judiciales.models.Comentarios;
 import com.consultorio.casos_judiciales.models.Usuarios;
 import com.consultorio.casos_judiciales.repositories.CasosRepository;
-import com.consultorio.casos_judiciales.utils.EstadoCasos;
-import com.consultorio.casos_judiciales.utils.Status;
+import com.consultorio.casos_judiciales.enums.EstadoCasos;
+import com.consultorio.casos_judiciales.enums.Status;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -67,8 +66,6 @@ public class CasosService {
         List<Comentarios> comentariosOrdenados = casos.getComentarios().stream()
                 .sorted(Comparator.comparing(Comentarios::getCreatedAt).reversed())
                 .collect(Collectors.toList());
-
-
         casos.setComentarios(comentariosOrdenados);
         return Optional.of(casos);
     }

@@ -1,7 +1,7 @@
 package com.consultorio.casos_judiciales.config;
 
 import com.consultorio.casos_judiciales.repositories.UsuariosRepository;
-import com.consultorio.casos_judiciales.utils.Status;
+import com.consultorio.casos_judiciales.enums.Status;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

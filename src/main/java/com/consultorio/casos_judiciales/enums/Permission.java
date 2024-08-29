@@ -1,6 +1,8 @@
-package com.consultorio.casos_judiciales.utils;
+package com.consultorio.casos_judiciales.enums;
 
 public enum Permission {
+READ_ALL_CLIENT_ROLE,
+READ_ALL_CLIENT,
 CREATE_CASE,
 READ_CASE,
 READ_ALL_CASES,
